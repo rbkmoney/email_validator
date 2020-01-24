@@ -51,6 +51,7 @@ clean:
 distclean:
 	$(REBAR) clean
 	rm -rf _build
+	rm src/email_validator_abnf.erl
 
 cover:
 	$(REBAR) cover
