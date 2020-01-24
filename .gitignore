@@ -1,0 +1,28 @@
+# general
+log
+/_build/
+*~
+erl_crash.dump
+.tags*
+*.sublime-*
+
+.DS_Store
+
+# rebar
+/_checkouts/
+
+*.beam
+
+# generated
+apps/swag_server/*
+apps/swag_client/*
+
+
+# containerization
+\#*
+.\#*
+Dockerfile
+docker-compose.yml
+
+# abnf generator
+src/email_validator_abnf.erl
