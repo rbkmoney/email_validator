@@ -39,7 +39,7 @@ lint:
 	elvis rock
 
 dialyze:
-	$(REBAR) dialyzer
+	$(REBAR) as test dialyzer
 
 start: submodules
 	$(REBAR) run
@@ -51,7 +51,6 @@ clean:
 distclean:
 	$(REBAR) clean
 	rm -rf _build
-	rm src/email_validator_abnf.erl
 
 cover:
 	$(REBAR) cover
