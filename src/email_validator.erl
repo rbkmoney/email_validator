@@ -10,7 +10,8 @@ validate(Address) ->
     case split_local_domain(Address) of
         [Local, Domain] ->
             validate_local_domain(Local, Domain);
-        _ -> fail
+        _ ->
+            fail
     end.
 
 %%
@@ -25,17 +26,17 @@ validate_local_domain(Local, Domain) ->
     end.
 
 validate_local(Local) when length(Local) =< 64 ->
-    case email_validator_abnf:decode('local-part', Local) of
-        {ok, _, []} -> ok;
-        _ -> fail
-    end;
+    validate_rule('local-part', Local);
 validate_local(_Local) ->
     fail.
 
 validate_domain(Domain) when length(Domain) =< 255 ->
-    case email_validator_abnf:decode('domain', Domain) of
-        {ok, _, []} -> ok;
-        _ -> fail
-    end;
+    validate_rule('domain', Domain);
 validate_domain(_Domain) ->
     fail.
+
+validate_rule(Rule, Data) ->
+    case email_validator_abnf:decode(Rule, Data) of
+        {ok, _, []} -> ok;
+        _ -> fail
+    end.
