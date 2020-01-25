@@ -23,6 +23,3 @@ apps/swag_client/*
 .\#*
 Dockerfile
 docker-compose.yml
-
-# abnf generator
-src/email_validator_abnf.erl

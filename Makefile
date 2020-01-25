@@ -58,3 +58,6 @@ cover:
 # CALL_W_CONTAINER
 test:
 	$(REBAR) ct
+
+generate:
+	$(REBAR) as generate compile
