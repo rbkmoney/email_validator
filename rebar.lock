@@ -1,4 +1,1 @@
-[{<<"abnfc">>,
-  {git,"https://github.com/heroku/abnfc.git",
-       {ref,"e3d5cde1f701e3464fa164029c63bc78208adf9b"}},
-  0}].
+[].
