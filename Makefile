@@ -39,7 +39,7 @@ lint:
 	elvis rock
 
 dialyze:
-	$(REBAR) dialyzer
+	$(REBAR) as test dialyzer
 
 start: submodules
 	$(REBAR) run
