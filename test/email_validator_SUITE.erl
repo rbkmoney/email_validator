@@ -39,6 +39,7 @@ default_alphanumeric_test(_Config) ->
 
 -spec manual_cases_test(config()) -> _.
 manual_cases_test(_Config) ->
+    % Cases and expected results based on RFC5322 (Internet Message Format)
     ManualCases = [
         {"simple@example.com", ok},
         {"simple(comment in local)@example.com", ok},
@@ -70,11 +71,9 @@ manual_cases_test(_Config) ->
         {"not even close", fail},
         {"@closerbutnotquite", fail},
         {"youtried@", fail},
-        % absolutely definitely against rfc5322 and the earlier one (backslashes and escaping not allowed)
         {"Abc\\@def@example.com", fail},
         {"Fred\\ Bloggs@example.com", fail},
         {"Joe.\\\\Blow@example.com", fail},
-        {"phil.h\\@\\@ck@haacked.com", fail},
         % (no @ character)
         {"Abc.example.com", fail},
         % (only one @ is allowed outside quotation marks)
@@ -105,16 +104,12 @@ validate(Data) ->
         {Addr, Expected, Res}
     end, Data).
 
-check(ValidationResults) ->
-    check(ValidationResults, true).
-
-check([], true) ->
+check([]) ->
     true;
-check([{_Addr, Expected, Res} | T], _Acc) when Expected =:= Res ->
-    check(T, true);
-check([H | _T], _Acc) ->
+check([{_Addr, Expected, Res} | T]) when Expected =:= Res ->
+    check(T);
+check([H | _T]) ->
     throw({fail, H}).
-
 
 %% UTILS
 
