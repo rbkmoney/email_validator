@@ -42,10 +42,6 @@ manual_cases_test(_Config) ->
     % Cases and expected results based on RFC5322 (Internet Message Format)
     ManualCases = [
         {"simple@example.com", ok},
-        {"simple(comment in local)@example.com", ok},
-        {"(comment in local)simple@example.com", ok},
-        {"simple@(comment in domain)example.com", ok},
-        {"simple@example.com(comment in domain)", ok},
         {"very.common@example.com", ok},
         {"disposable.style.email.with+symbol@example.com", ok},
         {"other.email-with-hyphen@example.com", ok},
@@ -67,10 +63,18 @@ manual_cases_test(_Config) ->
         {"$A12345@example.com", ok},
         {"!def!xyz%abc@example.com", ok},
         {"_somename@example.com", ok},
+        %% UTF-8
+        {<<"öö@example.com"/utf8>>, ok},
+        {<<"тест@example.com"/utf8>>, ok},
         %% Failures
         {"not even close", fail},
         {"@closerbutnotquite", fail},
         {"youtried@", fail},
+        % no longer support comments
+        {"simple(comment in local)@example.com", fail},
+        {"(comment in local)simple@example.com", fail},
+        {"simple@(comment in domain)example.com", fail},
+        {"simple@example.com(comment in domain)", fail},
         {"Abc\\@def@example.com", fail},
         {"Fred\\ Bloggs@example.com", fail},
         {"Joe.\\\\Blow@example.com", fail},
@@ -87,7 +91,8 @@ manual_cases_test(_Config) ->
         % (even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes)
         {"this\\ still\\\"not\\allowed@example.com", fail},
         % (local part is longer than 64 characters)
-        {"1234567890123456789012345678901234567890123456789012345678901234+x@example.com", fail}
+        {"1234567890123456789012345678901234567890123456789012345678901234+x@example.com", fail},
+        {<<"те\\ ст@example.com"/utf8>>, fail}
     ],
     true = validate_and_check(ManualCases),
     ok.
@@ -100,7 +105,10 @@ validate_and_check(Data) ->
 
 validate(Data) ->
     lists:map(fun({Addr, Expected}) ->
-        Res = email_validator:validate(Addr),
+        Res = case email_validator:validate(Addr) of
+            ok         -> ok;
+            {error, _} -> fail
+        end,
         {Addr, Expected, Res}
     end, Data).
 

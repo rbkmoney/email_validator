@@ -1,61 +1,52 @@
-;;; Based on RFC5322
-;;; https://tools.ietf.org/rfc/rfc5322.txt
+;;; Based on RFC5321 (Simple Mail Transfer Protocol)
+;;; https://tools.ietf.org/rfc/rfc5321.txt
+;;; + Added support for RFC6532 via RFC6531 (SMTP Extension for Internationalized Email)
+;;;   https://tools.ietf.org/rfc/rfc6532.txt
+;;;   https://tools.ietf.org/rfc/rfc6531.txt
 
-;; Address Specification
+;; Address specification
 
-; Addr-Spec Specification
+; Mailbox specification
 
-addr-spec       =   local-part "@" domain
+mailbox         =   local-part "@" ( domain / address-literal )
 
-local-part      =   dot-atom / quoted-string / obs-local-part
+; Domain specification
 
-domain          =   dot-atom / domain-literal / obs-domain
+domain          =   sub-domain *("." sub-domain)
 
-domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
+sub-domain      =   Let-dig [Ldh-str]
 
-dtext           =   %d33-90 /          ; Printable US-ASCII
-                    %d94-126 /         ;  characters not including
-                    obs-dtext          ;  "[", "]", or "\"
+Let-dig         =   ALPHA / DIGIT
 
-;; Lexical Tokens
+Ldh-str         =   *( ALPHA / DIGIT / "-" ) Let-dig
 
-; Folding white space
+address-literal =   "[" ( IPv4-address-literal /
+                       IPv6-address-literal /
+                       General-address-literal ) "]"
 
-FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
+; Lccal part specification
 
-ctext           =   %d33-39 /          ; Printable US-ASCII
-                    %d42-91 /          ;  characters not including
-                    %d93-126 /         ;  "(", ")", or "\"
-                    obs-ctext
+local-part      =   dot-string / quoted-string
 
-ccontent        =   ctext / quoted-pair / comment
+dot-string      =   atom *("."  atom)
 
-comment         =   "(" *([FWS] ccontent) [FWS] ")"
+quoted-string   =   DQUOTE *qcontentSMTP DQUOTE
 
-CFWS            =   (1*([FWS] comment) [FWS]) / FWS
+qcontentSMTP    =   qtextSMTP / quoted-pairSMTP
 
-; Quoted strings
+quoted-pairSMTP =   %d92 %d32-126   ; i.e., backslash followed by any ASCII
+                                    ; graphic (including itself) or SPace
 
-qtext           =   %d33 /             ; Printable US-ASCII
-                    %d35-91 /          ;  characters not including
-                    %d93-126 /         ;  "\" or the quote character
-                    obs-qtext
-
-qcontent        =   qtext / quoted-pair
-
-quoted-string   =   [CFWS]
-                    DQUOTE *([FWS] qcontent) [FWS] DQUOTE
-                    [CFWS]
-
-; Quoted pair
-
-quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
+qtextSMTP       =   %d32-33 /       ; i.e., within a quoted string, any
+                    %d35-91 /       ; ASCII graphic or space is permitted
+                    %d93-126 /      ; without blackslash-quoting except
+                    UTF8-non-ascii  ; double-quote and the backslash itself.
 
 ; Atom
 
-atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
-                    "!" / "#" /        ;  characters not including
-                    "$" / "%" /        ;  specials.  Used for atoms.
+atext           =   ALPHA / DIGIT / ; Printable US-ASCII
+                    "!" / "#" /     ; characters not including
+                    "$" / "%" /     ; specials. Used for atoms.
                     "&" / "'" /
                     "*" / "+" /
                     "-" / "/" /
@@ -63,36 +54,76 @@ atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
                     "^" / "_" /
                     "`" / "{" /
                     "|" / "}" /
-                    "~"
+                    "~" / UTF8-non-ascii
 
-atom            =   [CFWS] 1*atext [CFWS]
+atom            =   1*atext
 
-dot-atom-text   =   1*atext *("." 1*atext)
+;; Internationalized Email Headers
 
-dot-atom        =   [CFWS] dot-atom-text [CFWS]
+UTF8-non-ascii  =   UTF8-2 / UTF8-3 / UTF8-4
 
-; Misc
+; UTF-8 Byte Sequences (https://tools.ietf.org/rfc/rfc3629.txt)
 
-word            =   atom / quoted-string
+UTF8-2          =   %xC2-DF UTF8-tail
 
-;; OBSOLETE SYNTAX
+UTF8-3          =   %xE0 %xA0-BF UTF8-tail / %xE1-EC 2( UTF8-tail ) /
+                    %xED %x80-9F UTF8-tail / %xEE-EF 2( UTF8-tail )
 
-obs-FWS         =   1*WSP *(CRLF 1*WSP)
+UTF8-4          =   %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
+                    %xF4 %x80-8F 2( UTF8-tail )
 
-obs-ctext       =   obs-NO-WS-CTL
+UTF8-tail       =   %x80-BF
 
-obs-qtext       =   obs-NO-WS-CTL
+;; SMTP Address Literals
 
-obs-dtext       =   obs-NO-WS-CTL / quoted-pair
+dcontent        =   %d33-90 / ; Printable US-ASCII
+                    %d94-126  ; excl. "[", "\", "]"
 
-obs-qp          =   "\" (%d0 / obs-NO-WS-CTL / LF / CR)
+IPv4-address-literal     =   Snum 3("."  Snum)
 
-obs-NO-WS-CTL   =   %d1-8 /            ; US-ASCII control
-                    %d11 /             ;  characters that do not
-                    %d12 /             ;  include the carriage
-                    %d14-31 /          ;  return, line feed, and
-                    %d127              ;  white space characters
+IPv6-address-literal     =   "IPv6:" IPv6-addr
 
-obs-local-part  =   word *("." word)
+General-address-literal  =   Standardized-tag ":" 1*dcontent
 
-obs-domain      =   atom *("." atom)
+Standardized-tag         =   Ldh-str
+
+IPv6-addr       =   IPv6-full / IPv6-comp / IPv6v4-full / IPv6v4-comp
+
+IPv6-hex        =   1*4HEXDIG
+
+IPv6-full       =   IPv6-hex 7(":" IPv6-hex)
+
+IPv6-comp       =   [IPv6-hex *5(":" IPv6-hex)] "::"
+                    [IPv6-hex *5(":" IPv6-hex)]
+
+IPv6v4-full     =   IPv6-hex 5(":" IPv6-hex) ":" IPv4-address-literal
+
+IPv6v4-comp     =   [IPv6-hex *3(":" IPv6-hex)] "::"
+                    [IPv6-hex *3(":" IPv6-hex) ":"]
+                    IPv4-address-literal
+
+Snum            =   1*3DIGIT
+
+;; RFC4234 CORE (For abnfc binary compatability)
+
+LF              =   %x0A                ; linefeed
+
+CR              =   %x0D                ; carriage return
+
+ALPHA           =   %x41-5A / %x61-7A   ; A-Z / a-z
+
+DIGIT           =   %x30-39             ; 0-9
+
+SP              =   %x20
+
+HTAB            =   %x09                ; horizontal tab
+
+WSP             =   SP / HTAB           ; white space
+
+CRLF            =   CR LF               ; Internet standard newline
+
+VCHAR           =   %x21-7E             ; visible (printing) characters
+
+DQUOTE          =   %x22                ; " (Double Quote)
+
+HEXDIG          =   DIGIT/ "A"/ "B"/ "C"/ "D"/ "E"/ "F" ; 0-9 A-F

@@ -2,41 +2,57 @@
 
 -export([validate/1]).
 
--spec validate(string()) ->
-    ok | fail.
+-define(DOMAIN_MAX_SIZE, 255).
+-define(LOCAL_MAX_SIZE,  64).
+-define(ADDR_MAX_SIZE, ?LOCAL_MAX_SIZE + ?DOMAIN_MAX_SIZE + 1).
+
+-spec validate(binary() | string()) ->
+    ok | {error, term()}.
+
+validate(Address) when is_list(Address) ->
+    validate(list_to_binary(Address));
+validate(Address) when is_binary(Address) ->
+    validate_addr(Address);
 validate(Address) ->
-    % As per https://tools.ietf.org/html/rfc5321#section-4.5.3.1
-    % we need to validate maximum sizes
+    {error, {not_an_address, Address}}.
+
+%%
+
+% As per https://tools.ietf.org/html/rfc5321#section-4.5.3.1
+% we need to validate maximum sizes
+validate_addr(Address) when byte_size(Address) =< ?ADDR_MAX_SIZE ->
     case split_local_domain(Address) of
         [Local, Domain] ->
             validate_local_domain(Local, Domain);
         _ ->
-            fail
-    end.
-
-%%
+            {error, {not_an_address, Address}}
+    end;
+validate_addr(Address) ->
+    {error, {'addr-spec', {too_big, Address}}}.
 
 split_local_domain(Address) ->
     string:split(Address, "@", trailing).
 
 validate_local_domain(Local, Domain) ->
-    case {validate_local(Local), validate_domain(Domain)} of
-        {ok, ok} -> ok;
-        _ -> fail
+    case validate_local(Local) of
+        ok ->
+            validate_domain(Domain);
+        {error, _} = Error ->
+            Error
     end.
 
-validate_local(Local) when length(Local) =< 64 ->
+validate_local(Local) when byte_size(Local) =< ?LOCAL_MAX_SIZE ->
     validate_rule('local-part', Local);
-validate_local(_Local) ->
-    fail.
+validate_local(Local) ->
+    {error, {'local-part', {too_big, Local}}}.
 
-validate_domain(Domain) when length(Domain) =< 255 ->
+validate_domain(Domain) when byte_size(Domain) =< ?DOMAIN_MAX_SIZE ->
     validate_rule('domain', Domain);
-validate_domain(_Domain) ->
-    fail.
+validate_domain(Domain) ->
+    {error, {'domain', {too_big, Domain}}}.
 
 validate_rule(Rule, Data) ->
     case email_validator_abnf:decode(Rule, Data) of
-        {ok, _, []} -> ok;
-        _ -> fail
+        {ok, _, <<>>} -> ok;
+        _ -> {error, {Rule, {decode_failed, Data}}}
     end.
