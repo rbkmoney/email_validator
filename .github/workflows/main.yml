@@ -3,7 +3,7 @@ name: Erlang CI
 on: [push]
 
 env:
-  ERLANG_VERSION: 21.3.8.12
+    ERLANG_VERSION: 21.3.8.12
 
 jobs:
 
@@ -11,7 +11,7 @@ jobs:
 
         runs-on: ubuntu-latest
 
-        container: erlang:${{ env.ERLANG_VERSION }}
+        container: erlang:21.3.8.12
 
         steps:
         - uses: actions/checkout@v2
