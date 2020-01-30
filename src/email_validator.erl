@@ -14,9 +14,9 @@ validate(Address) when is_list(Address) ->
         Result when is_binary(Result) ->
             validate(Result);
         {error, Encoded, Rest} ->
-            {error, {unicode, {invalid, Encoded ++ Rest}}};
+            {error, {unicode, {invalid, Encoded, Rest}}};
         {incomplete, Encoded, Rest} ->
-            {error, {unicode, {incomplete, Encoded ++ Rest}}}
+            {error, {unicode, {incomplete, Encoded, Rest}}}
     end;
 validate(Address) when is_binary(Address) ->
     validate_addr(Address);
