@@ -66,6 +66,7 @@ manual_cases_test(_Config) ->
         % ip addresses
         {"ip@[127.0.0.1]", ok},
         {"ip@[IPv6:::1]", ok},
+        {"ip@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]", ok},
         % UTF-8
         {<<"öö@example.com"/utf8>>, ok},
         {<<"тест@example.com"/utf8>>, ok},
