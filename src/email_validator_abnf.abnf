@@ -14,11 +14,13 @@ mailbox         =   local-part "@" ( domain / address-literal )
 
 domain          =   sub-domain *("." sub-domain)
 
-sub-domain      =   Let-dig [Ldh-str]
+sub-domain      =   let-dig [ldh-str]
 
-Let-dig         =   ALPHA / DIGIT
+let-dig         =   ALPHA / DIGIT
 
-Ldh-str         =   *( ALPHA / DIGIT / "-" ) Let-dig
+hyphen-let-dig  =   "-" let-dig
+
+ldh-str         =   1*(hyphen-let-dig / let-dig)
 
 address-literal =   "[" ( IPv4-address-literal /
                        IPv6-address-literal /
@@ -85,7 +87,7 @@ IPv6-address-literal     =   "IPv6:" IPv6-addr
 
 General-address-literal  =   Standardized-tag ":" 1*dcontent
 
-Standardized-tag         =   Ldh-str
+Standardized-tag         =   ldh-str
 
 IPv6-addr       =   IPv6-full / IPv6-comp / IPv6v4-full / IPv6v4-comp
 

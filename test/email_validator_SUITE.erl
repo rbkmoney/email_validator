@@ -70,11 +70,15 @@ manual_cases_test(_Config) ->
         {"not even close", fail},
         {"@closerbutnotquite", fail},
         {"youtried@", fail},
-        % no longer support comments
+        % smtp doesn't support comments
         {"simple(comment in local)@example.com", fail},
         {"(comment in local)simple@example.com", fail},
         {"simple@(comment in domain)example.com", fail},
         {"simple@example.com(comment in domain)", fail},
+        % invalid domain
+        {"simple@-example.com", fail},
+        {"simple@example-.com", fail},
+        {"simple@exam-$%ple.com", fail},
         {"Abc\\@def@example.com", fail},
         {"Fred\\ Bloggs@example.com", fail},
         {"Joe.\\\\Blow@example.com", fail},
