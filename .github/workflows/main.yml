@@ -2,20 +2,40 @@ name: Erlang CI
 
 on: [push]
 
+env:
+  ERLANG_VERSION: 21.3.8.12
+
 jobs:
+
     build:
+
         runs-on: ubuntu-latest
+
         container:
-          image: erlang:21.3.8.12
+          image: erlang:${{ env.ERLANG_VERSION }}
+
         steps:
         - uses: actions/checkout@v2
+
+        - name: Restore dialyzer cache
+          uses: actions/cache@v1
+          env:
+            CACHE_NAME: cache-dialyzer
+          with:
+            path: ~/.cache/rebar3/rebar3_${{ env.ERLANG_VERSION }}_plt
+            key: ${{ env.CACHE_NAME }}-${{ env.ERLANG_VERSION }}
+
         - name: Lint
-          run: rebar3 elvis
+          run: rebar3 lint
+
         - name: Compile
           run: rebar3 compile
+
         - name: Xref
           run: rebar3 xref
+
         - name: Dialyze
           run: rebar3 dialyzer
+
         - name: Run tests
           run: rebar3 ct
