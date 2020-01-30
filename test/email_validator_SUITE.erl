@@ -63,7 +63,10 @@ manual_cases_test(_Config) ->
         {"$A12345@example.com", ok},
         {"!def!xyz%abc@example.com", ok},
         {"_somename@example.com", ok},
-        %% UTF-8
+        % ip addresses
+        {"ip@[127.0.0.1]", ok},
+        {"ip@[IPv6:::1]", ok},
+        % UTF-8
         {<<"öö@example.com"/utf8>>, ok},
         {<<"тест@example.com"/utf8>>, ok},
         %% Failures
@@ -96,7 +99,12 @@ manual_cases_test(_Config) ->
         {"this\\ still\\\"not\\allowed@example.com", fail},
         % (local part is longer than 64 characters)
         {"1234567890123456789012345678901234567890123456789012345678901234+x@example.com", fail},
-        {<<"те\\ ст@example.com"/utf8>>, fail}
+        % ip addresses
+        {"ip@[127.1.1.1.1]", fail},
+        {"ip@[IPv6:X:0:0:0:0:0:0:1]", fail},
+        % UTF-8
+        {<<"те\\ ст@example.com"/utf8>>, fail},
+        {<<"т ес\"т@example.com"/utf8>>, fail}
     ],
     true = validate_and_check(ManualCases),
     ok.

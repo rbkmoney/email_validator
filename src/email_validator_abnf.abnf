@@ -8,11 +8,13 @@
 
 ; Mailbox specification
 
-mailbox         =   local-part "@" ( domain / address-literal )
+mailbox         =   local-part "@" domain
 
 ; Domain specification
 
-domain          =   sub-domain *("." sub-domain)
+domain          =   domain-name / address-literal
+
+domain-name     =   sub-domain *("." sub-domain)
 
 sub-domain      =   let-dig [ldh-str]
 
@@ -22,9 +24,7 @@ hyphen-let-dig  =   "-" let-dig
 
 ldh-str         =   1*(hyphen-let-dig / let-dig)
 
-address-literal =   "[" ( IPv4-address-literal /
-                       IPv6-address-literal /
-                       General-address-literal ) "]"
+address-literal =   "[" ( IPv4-address-literal / IPv6-address-literal ) "]"
 
 ; Lccal part specification
 
@@ -78,16 +78,16 @@ UTF8-tail       =   %x80-BF
 
 ;; SMTP Address Literals
 
-dcontent        =   %d33-90 / ; Printable US-ASCII
-                    %d94-126  ; excl. "[", "\", "]"
-
 IPv4-address-literal     =   Snum 3("."  Snum)
 
 IPv6-address-literal     =   "IPv6:" IPv6-addr
 
-General-address-literal  =   Standardized-tag ":" 1*dcontent
+; General-address-literal  =   Standardized-tag ":" 1*dcontent
 
-Standardized-tag         =   ldh-str
+; Standardized-tag         =   ldh-str
+
+; dcontent        =   %d33-90 / ; Printable US-ASCII
+;                     %d94-126  ; excl. "[", "\", "]"
 
 IPv6-addr       =   IPv6-full / IPv6-comp / IPv6v4-full / IPv6v4-comp
 
@@ -128,4 +128,4 @@ VCHAR           =   %x21-7E             ; visible (printing) characters
 
 DQUOTE          =   %x22                ; " (Double Quote)
 
-HEXDIG          =   DIGIT/ "A"/ "B"/ "C"/ "D"/ "E"/ "F" ; 0-9 A-F
+HEXDIG          =   DIGIT / "A" / "B" / "C" / "D" / "E" / "F" ; 0-9 A-F
