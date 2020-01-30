@@ -9,6 +9,8 @@ jobs:
           image: erlang:21.3.8.12
         steps:
         - uses: actions/checkout@v2
+        - name: Lint
+          run: rebar3 elvis
         - name: Compile
           run: rebar3 compile
         - name: Xref
@@ -16,4 +18,4 @@ jobs:
         - name: Dialyze
           run: rebar3 dialyzer
         - name: Run tests
-          run: rebar3 do eunit, ct
+          run: rebar3 ct
