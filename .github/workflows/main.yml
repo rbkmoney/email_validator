@@ -18,11 +18,9 @@ jobs:
 
         - name: Restore dialyzer cache
           uses: actions/cache@v1
-          env:
-            CACHE_NAME: cache-dialyzer
           with:
-            path: ~/.cache/rebar3/rebar3_${{ env.ERLANG_VERSION }}_plt
-            key: ${{ env.CACHE_NAME }}-${{ env.ERLANG_VERSION }}
+            path: ~/.cache/rebar3
+            key: dialyzer-${{ env.ERLANG_VERSION }}
 
         - name: Lint
           run: rebar3 lint
@@ -38,3 +36,6 @@ jobs:
 
         - name: Run tests
           run: rebar3 ct
+
+        - name: Clean up
+          run: rm -rf ~/.cache3/rebar3/hex

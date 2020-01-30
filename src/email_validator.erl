@@ -10,7 +10,14 @@
     ok | {error, term()}.
 
 validate(Address) when is_list(Address) ->
-    validate(list_to_binary(Address));
+    case unicode:characters_to_binary(Address) of
+        Result when is_binary(Result) ->
+            validate(Result);
+        {error, Encoded, Rest} ->
+            {error, {unicode, {invalid, Encoded ++ Rest}}};
+        {incomplete, Encoded, Rest} ->
+            {error, {unicode, {incomplete, Encoded ++ Rest}}}
+    end;
 validate(Address) when is_binary(Address) ->
     validate_addr(Address);
 validate(Address) ->
@@ -28,7 +35,7 @@ validate_addr(Address) when byte_size(Address) =< ?ADDR_MAX_SIZE ->
             {error, {not_an_address, Address}}
     end;
 validate_addr(Address) ->
-    {error, {'addr-spec', {too_big, Address}}}.
+    {error, {'mailbox', {too_big, Address}}}.
 
 split_local_domain(Address) ->
     string:split(Address, "@", trailing).

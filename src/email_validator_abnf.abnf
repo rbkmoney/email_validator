@@ -18,6 +18,12 @@ domain-name     =   sub-domain *("." sub-domain)
 
 sub-domain      =   let-dig [ldh-str]
 
+; Original definitions of
+; Let-dig        = ALPHA / DIGIT
+; Ldh-str        = *( ALPHA / DIGIT / "-" ) Let-dig
+; changed due to ABNFC-compiled parser being too greedy
+; Following definitions are supposed to be equal to them
+
 let-dig         =   ALPHA / DIGIT
 
 hyphen-let-dig  =   "-" let-dig
@@ -82,12 +88,12 @@ IPv4-address-literal     =   Snum 3("."  Snum)
 
 IPv6-address-literal     =   "IPv6:" IPv6-addr
 
-; General-address-literal  =   Standardized-tag ":" 1*dcontent
+General-address-literal  =   Standardized-tag ":" 1*dcontent
 
-; Standardized-tag         =   ldh-str
+Standardized-tag         =   ldh-str
 
-; dcontent        =   %d33-90 / ; Printable US-ASCII
-;                     %d94-126  ; excl. "[", "\", "]"
+dcontent        =   %d33-90 / ; Printable US-ASCII
+                    %d94-126  ; excl. "[", "\", "]"
 
 IPv6-addr       =   IPv6-full / IPv6-comp / IPv6v4-full / IPv6v4-comp
 

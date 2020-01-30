@@ -102,7 +102,6 @@ manual_cases_test(_Config) ->
         {"1234567890123456789012345678901234567890123456789012345678901234+x@example.com", fail},
         % ip addresses
         {"ip@[127.1.1.1.1]", fail},
-        {"ip@[IPv6:X:0:0:0:0:0:0:1]", fail},
         % UTF-8
         {<<"те\\ ст@example.com"/utf8>>, fail},
         {<<"т ес\"т@example.com"/utf8>>, fail}
