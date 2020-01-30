@@ -61,5 +61,5 @@ validate_domain(Domain) ->
 validate_rule(Rule, Data) ->
     case email_validator_abnf:decode(Rule, Data) of
         {ok, _, <<>>} -> ok;
-        _ -> {error, {Rule, {decode_failed, Data}}}
+        _ -> {error, {Rule, {parse_failed, Data}}}
     end.
