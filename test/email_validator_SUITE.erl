@@ -34,12 +34,11 @@ end_per_suite(Config) ->
 -spec default_alphanumeric_test(config()) -> _.
 default_alphanumeric_test(_Config) ->
     Emails = get_random_valid_emails(10000),
-    true = validate_and_check(Emails),
-    ok.
+    validate_and_check(Emails).
 
 -spec manual_cases_test(config()) -> _.
 manual_cases_test(_Config) ->
-    % Cases and expected results based on RFC5322 (Internet Message Format)
+    % Cases and expected results based on RFC5321 (Simple Mail Transfer Protocol)
     ManualCases = [
         {"simple@example.com", ok},
         {"very.common@example.com", ok},
@@ -106,30 +105,25 @@ manual_cases_test(_Config) ->
         {<<"те\\ ст@example.com"/utf8>>, fail},
         {<<"т ес\"т@example.com"/utf8>>, fail}
     ],
-    true = validate_and_check(ManualCases),
-    ok.
+    validate_and_check(ManualCases).
 
 %% TEST COMMON
-
 validate_and_check(Data) ->
-    ValidationResults = validate(Data),
-    check(ValidationResults).
-
-validate(Data) ->
     lists:map(fun({Addr, Expected}) ->
-        Res = case email_validator:validate(Addr) of
-            ok         -> ok;
-            {error, _} -> fail
-        end,
-        {Addr, Expected, Res}
+        Res = validate(Addr),
+        check({Addr, Expected, Res})
     end, Data).
 
-check([]) ->
-    true;
-check([{_Addr, Expected, Res} | T]) when Expected =:= Res ->
-    check(T);
-check([H | _T]) ->
-    throw({fail, H}).
+validate(Addr) ->
+    case email_validator:validate(Addr) of
+        ok         -> ok;
+        {error, _} -> fail
+    end.
+
+check({_Addr, Expected, Res}) when Expected =:= Res ->
+    ok;
+check(Fail) ->
+    throw({fail, Fail}).
 
 %% UTILS
 
@@ -145,21 +139,23 @@ make_email() ->
     {lists:flatten([make_local(), $@, make_domain()]), ok}.
 
 make_local() ->
-    random_local_part(16).
+    random_local_part(rand:uniform(16)).
 
 make_domain() ->
-    lists:flatten([random_alpha_lower(8), $., random_alpha_lower(2)]).
+    lists:flatten([random_alpha_lower(rand:uniform(8)), $., random_alpha_lower(1 + rand:uniform(2))]).
 
 random_alpha_lower(Length) ->
     random_string(Length, lists:seq($a, $z)).
 
-random_local_part(Length) ->
+random_local_part(Length) when Length >= 3->
     random_alpha_lower(1) ++
     random_string(
         Length - 2,
         lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9) ++ [$., $+, $-, $_]
     ) ++
-    random_alpha_lower(1).
+    random_alpha_lower(1);
+random_local_part(Length) ->
+    random_alpha_lower(Length).
 
 random_string(Length, AllowedChars) ->
     lists:foldl(
