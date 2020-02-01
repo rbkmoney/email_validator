@@ -92,7 +92,7 @@ decode_parse_result([Local, $@, Domain]) ->
 
 %TODO: More result processing, normalize IP addresses, etc
 decode_local_part(Local) ->
-    unicode:characters_to_binary(lists:flatten(Local)).
+    list_to_binary(lists:flatten(Local)).
 
 decode_domain(Domain) ->
-    unicode:characters_to_binary(lists:flatten(Domain)).
+    list_to_binary(lists:flatten(Domain)).

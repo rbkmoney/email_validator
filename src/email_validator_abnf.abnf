@@ -30,7 +30,7 @@ hyphen-let-dig  =   "-" let-dig
 
 ldh-str         =   1*(hyphen-let-dig / let-dig)
 
-address-literal =   "[" ( IPv4-address-literal / IPv6-address-literal ) "]"
+address-literal =   "[" ( IPv4-address-literal / IPv6-address-literal / General-address-literal ) "]"
 
 ; Lccal part specification
 

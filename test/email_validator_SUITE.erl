@@ -8,7 +8,6 @@
 -export([end_per_suite/1]).
 
 -export([
-    default_alphanumeric_test/1,
     manual_cases_test/1
 ]).
 
@@ -19,7 +18,6 @@
     [test_case_name()].
 all() ->
     [
-        default_alphanumeric_test,
         manual_cases_test
     ].
 
@@ -30,11 +28,6 @@ init_per_suite(Config) ->
 -spec end_per_suite(config()) -> _.
 end_per_suite(Config) ->
     Config.
-
--spec default_alphanumeric_test(config()) -> _.
-default_alphanumeric_test(_Config) ->
-    Emails = get_random_valid_emails(10000),
-    validate_and_check(Emails).
 
 -spec manual_cases_test(config()) -> _.
 manual_cases_test(_Config) ->
@@ -124,53 +117,3 @@ check({_Addr, Expected, Res}) when Expected =:= Res ->
     ok;
 check(Fail) ->
     throw({fail, Fail}).
-
-%% UTILS
-
-get_random_valid_emails(Num) ->
-    get_random_valid_emails(Num, []).
-
-get_random_valid_emails(0, Acc) ->
-    Acc;
-get_random_valid_emails(Num, Acc) ->
-    get_random_valid_emails(Num - 1, [make_email() | Acc]).
-
-make_email() ->
-    {lists:flatten([make_local(), $@, make_domain()]), ok}.
-
-make_local() ->
-    random_local_part(rand:uniform(16)).
-
-make_domain() ->
-    lists:flatten([random_alpha_lower(rand:uniform(8)), $., random_alpha_lower(1 + rand:uniform(2))]).
-
-random_alpha_lower(Length) ->
-    random_string(Length, lists:seq($a, $z)).
-
-random_local_part(Length) when Length >= 3->
-    random_alpha_lower(1) ++
-    random_string(
-        Length - 2,
-        lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9) ++ [$., $+, $-, $_]
-    ) ++
-    random_alpha_lower(1);
-random_local_part(Length) ->
-    random_alpha_lower(Length).
-
-random_string(Length, AllowedChars) ->
-    lists:foldl(
-        fun
-            (_, []) ->
-                [random_char(AllowedChars)];
-            (_, [Prev | _] = Acc) ->
-                [random_char_non_repeating(Prev, AllowedChars) | Acc]
-        end,
-        [],
-        lists:seq(1, Length)
-    ).
-
-random_char_non_repeating(Prev, AllowedChars) ->
-    random_char(AllowedChars -- [Prev]).
-
-random_char(AllowedChars) ->
-    lists:nth(rand:uniform(length(AllowedChars)), AllowedChars).
