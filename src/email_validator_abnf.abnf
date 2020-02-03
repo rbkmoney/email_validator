@@ -95,7 +95,10 @@ Standardized-tag         =   ldh-str
 dcontent        =   %d33-90 / ; Printable US-ASCII
                     %d94-126  ; excl. "[", "\", "]"
 
-IPv6-addr       =   IPv6-full / IPv6-comp / IPv6v4-full / IPv6v4-comp
+IPv6-addr       =   IPv6-full /
+                    IPv6-comp /
+                    IPv6v4-full /
+                    IPv6v4-comp
 
 IPv6-hex        =   1*4HEXDIG
 
