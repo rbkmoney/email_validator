@@ -11,7 +11,6 @@
 %%%%%%%%%%%%%%%%%%
 prop_test() ->
     ?FORALL(Mailbox, 'mailbox'(), begin
-        _ = io:format("~p~n", [Mailbox]),
         validate_mailbox(Mailbox)
     end).
 
