@@ -32,6 +32,8 @@ validate_mailbox(Mailbox) ->
 mailbox() ->
     ?LET({LocalPart, Domain}, {local_part(), domain()}, <<LocalPart/binary, $@, Domain/binary>>).
 
+%% Generate using original RFC definitions
+
 % domain          =   domain-name / address-literal
 domain() ->
     ?SUCHTHAT(
@@ -62,15 +64,12 @@ domain() ->
 'let-dig'() ->
     '__alt'(['ALPHA'(), 'DIGIT'()]).
 
-% hyphen-let-dig  =   "-" let-dig
-'hyphen-let-dig'() ->
-    ?LET(LetDig, 'let-dig'(), <<$-, LetDig>>).
-
-% ldh-str         =   1*(hyphen-let-dig / let-dig)
+% ldh-str         =   *( ALPHA / DIGIT / "-" ) Let-dig
 'ldh-str'() ->
-    '__repeat'('__alt'(['hyphen-let-dig'(), 'let-dig'()]), 1, infinity).
+    ?LET({LDH, LetDig}, {'__repeat'(ldh(), 0, infinity), 'let-dig'()}, <<LDH/binary, LetDig>>).
 
-%% @TODO
+'ldh'() ->
+    '__alt'(['ALPHA'(), 'DIGIT'(), $-]).
 
 % address-literal =   "[" ( IPv4-address-literal / IPv6-address-literal / General-address-literal ) "]"
 'address-literal'() ->
