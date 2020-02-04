@@ -146,7 +146,7 @@ IPv6v4-full       = (h16x6 ":" IPv4-address-literal)
 
 IPv6-full         = (h16x8)
 
-IPv6-comp         = (h16x1x6 "::" h16x1x6) / (h16x1x7 "::") / ("::" h16x1x7) / ("::")
+IPv6-comp         = (h16x1x6 "::" h16x1x6) / (h16x1x6 "::") / ("::" h16x1x6) / ("::")
 
 h16x8           =   h16 ":" h16x7
 h16x7           =   h16 ":" h16x6
@@ -155,15 +155,13 @@ h16x5           =   h16 ":" h16x4
 h16x4           =   h16 ":" h16x3
 h16x3           =   h16 ":" h16x2
 h16x2           =   h16 ":" h16
+h16             =   1*4HEXDIG
 
-h16x1x7         =   h16x7 / h16x1x6
 h16x1x6         =   h16x6 / h16x1x5
 h16x1x5         =   h16x5 / h16x1x4
 h16x1x4         =   h16x4 / h16x1x3
 h16x1x3         =   h16x3 / h16x1x2
 h16x1x2         =   h16x2 / h16
-
-h16             =   1*4HEXDIG
 
 Snum            =   1*3DIGIT
 

@@ -10,16 +10,13 @@
 %%% Properties %%%
 %%%%%%%%%%%%%%%%%%
 prop_test() ->
-    ?FORALL(Mailbox, 'mailbox'(), begin
-        validate_mailbox(Mailbox)
-    end).
+    ?FORALL(Mailbox, 'mailbox'(), validate_mailbox(Mailbox)).
 
 %%%%%%%%%%%%%%%
 %%% Helpers %%%
 %%%%%%%%%%%%%%%
 validate_mailbox(Mailbox) ->
-    RealRes = email_validator:validate(Mailbox),
-    case RealRes of
+    case email_validator:validate(Mailbox) of
         ok         -> true;
         {error, _} -> false
     end.
