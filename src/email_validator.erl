@@ -19,12 +19,14 @@ validate(Address) ->
     case parse(Address) of
         {ok, _Result} ->
             ok;
+        {incomplete, Result} ->
+            {error, {parse_incomplete, Result}};
         Error ->
             Error
     end.
 
 -spec parse(binary() | string()) ->
-    {ok, parse_result()} | {error, term()}.
+    {ok, parse_result()} | {incomplete, term()} | {error, term()}.
 
 parse(Address) when is_list(Address) ->
     case unicode:characters_to_binary(Address) of
@@ -80,7 +82,9 @@ parse_rule(Rule, Data) ->
     case email_validator_abnf:decode(Rule, Data) of
         {ok, ParseResult, <<>>} ->
             {ok, decode_parse_result(ParseResult)};
-        _Error ->
+        {ok, Incomplete, Remainder} ->
+            {incomplete, {Rule, decode_parse_result(Incomplete, Remainder)}};
+        fail ->
             {error, {Rule, {parse_failed, Data}}}
     end.
 
@@ -89,6 +93,9 @@ decode_parse_result([Local, $@, Domain]) ->
         'local-part' => decode_local_part(Local),
         'domain'     => decode_domain(Domain)
     }.
+
+decode_parse_result(Incomplete, Remainder) ->
+    {list_to_binary(lists:flatten(Incomplete)), Remainder}.
 
 %TODO: More result processing, normalize IP addresses, etc
 decode_local_part(Local) ->

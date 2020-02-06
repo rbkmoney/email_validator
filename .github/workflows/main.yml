@@ -6,11 +6,8 @@ env:
     ERLANG_VERSION: 21.3.8.12
 
 jobs:
-
     build:
-
         runs-on: ubuntu-latest
-
         container: erlang:21.3.8.12
 
         steps:
@@ -35,7 +32,7 @@ jobs:
           run: rebar3 dialyzer
 
         - name: Run tests
-          run: rebar3 as test do ct, proper
+          run: rebar3 do eunit, proper
 
         - name: Clean up
           run: rm -rf ~/.cache3/rebar3/hex
