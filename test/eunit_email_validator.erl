@@ -33,9 +33,12 @@ manual_cases() -> [
     {"ip@[IPv6:dead:beef::7.0.0.1]", ok},
     {"ip@[IPv6:d:e:a:d:be:ef:7.0.0.3]", ok},
     {"ip@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]", ok},
-    % NOTE: next case will actually succeed because of `General-address-literal`
-    {"ip@[IPv6:dead:beef:7.0.0.2]", ok},
     {"ip@[GENERAL:address-literal]", ok},
+    % NOTE: next cases will actually succeed because of `General-address-literal`
+    {"ip@[IPv6:dead:beef:7.0.0.2]", ok},
+    {"ip@[IPv6:d:e:a:d:be:e:f:7.0.0.4]", ok},
+    {"ip@[IPv6:d:e:a:d:be:ef::7.0.0.5]", ok},
+    {"ip@[IPv6:d:e:a:d:be:ef::7.0.0.5]", ok},
     % UTF-8
     {<<"öö@example.com"/utf8>>, ok},
     {<<"тест@example.com"/utf8>>, ok},
@@ -74,9 +77,6 @@ manual_cases() -> [
     {"ip@[127.1.1.1.1]", fail},
     {"ip@[GENERAL:", fail},
     {"ip@[GENERAL:[test]]", fail},
-    {"ip@[IPv6:d:e:a:d:be:e:f:7.0.0.4]", fail},
-    {"ip@[IPv6:d:e:a:d:be:ef::7.0.0.5]", fail},
-    {"ip@[IPv6:d:e:a:d:be:ef::7.0.0.5]", fail},
     % UTF-8
     {<<"те\\ ст@example.com"/utf8>>, fail},
     {<<"т ес\"т@example.com"/utf8>>, fail}
