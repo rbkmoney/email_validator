@@ -3,9 +3,6 @@
 
 -export([prop_test/0]).
 
-%NOTE: Magic number
--define(INFINITY, 10).
-
 %%%%%%%%%%%%%%%%%%
 %%% Properties %%%
 %%%%%%%%%%%%%%%%%%
@@ -34,7 +31,7 @@ mailbox() ->
 domain() ->
     ?SUCHTHAT(
         Domain,
-        '__alt'([
+        oneof([
             'domain-name'(),
             'address-literal'()
         ]),
@@ -60,21 +57,20 @@ domain() ->
 
 % let-dig         =   ALPHA / DIGIT
 'let-dig'() ->
-    '__alt'(['ALPHA'(), 'DIGIT'()]).
+    oneof(['ALPHA'(), 'DIGIT'()]).
 
 % ldh-str         =   *( ALPHA / DIGIT / "-" ) Let-dig
 'ldh-str'() ->
     ?LET({LDH, LetDig}, {'__repeat'(ldh(), 0, infinity), 'let-dig'()}, <<LDH/binary, LetDig>>).
 
 'ldh'() ->
-    '__alt'(['ALPHA'(), 'DIGIT'(), $-]).
+    oneof(['ALPHA'(), 'DIGIT'(), $-]).
 
-% address-literal =   "[" ( IPv4-address-literal / IPv6-address-literal / General-address-literal ) "]"
+% address-literal =   "[" ( IPv4-address-literal / IPv6-address-literal ) "]"
 'address-literal'() ->
-    ?LET(Alt, '__alt'([
+    ?LET(Alt, oneof([
         'IPv4-address-literal'(),
-        'IPv6-address-literal'(),
-        'General-address-literal'()
+        'IPv6-address-literal'()
     ]), <<$[, Alt/binary, $]>>).
 
 %%% LOCAL PART %%%
@@ -83,7 +79,7 @@ domain() ->
 local_part() ->
     ?SUCHTHAT(
         LocalPart,
-        '__alt'([
+        oneof([
             'dot-string'(),
             'quoted-string'()
         ]),
@@ -111,7 +107,7 @@ local_part() ->
 
 % qcontentSMTP    =   qtextSMTP / quoted-pairSMTP
 'qcontentSMTP'() ->
-    '__alt'(['qtextSMTP'(), 'quoted-pairSMTP'()]).
+    oneof(['qtextSMTP'(), 'quoted-pairSMTP'()]).
 
 % quoted-pairSMTP =   %d92 %d32-126
 'quoted-pairSMTP'() ->
@@ -122,7 +118,7 @@ local_part() ->
 %                     %d93-126 /      ; without blackslash-quoting except
 %                     UTF8-non-ascii  ; double-quote and the backslash itself.
 'qtextSMTP'() ->
-    '__alt'([choose(32, 33), choose(35, 91), choose(93, 126), 'UTF8-non-ascii'()]).
+    oneof([choose(32, 33), choose(35, 91), choose(93, 126), 'UTF8-non-ascii'()]).
 
 %%% ATOM %%%
 
@@ -138,7 +134,7 @@ local_part() ->
 %                     "|" / "}" /
 %                     "~" / UTF8-non-ascii
 'atext'() ->
-    '__alt'([
+    oneof([
         'ALPHA'(), 'DIGIT'(), 'UTF8-non-ascii'(),
         $!, $#, $$, $%, $&, $', $*, $+, $-, $/, $=, $?, $^, $_, $`, ${, $|, $}, $~
     ]).
@@ -151,7 +147,7 @@ local_part() ->
 
 % UTF8-non-ascii  =   UTF8-2 / UTF8-3 / UTF8-4
 'UTF8-non-ascii'() ->
-    '__alt'(['UTF8-2'(), 'UTF8-3'(), 'UTF8-4'()]).
+    oneof(['UTF8-2'(), 'UTF8-3'(), 'UTF8-4'()]).
 
 % UTF8-2          =   %xC2-DF UTF8-tail
 'UTF8-2'() ->
@@ -160,7 +156,7 @@ local_part() ->
 % UTF8-3          =   %xE0 %xA0-BF UTF8-tail / %xE1-EC 2( UTF8-tail ) /
 %                     %xED %x80-9F UTF8-tail / %xEE-EF 2( UTF8-tail )
 'UTF8-3'() ->
-    '__alt'(['UTF8-3-1'(), 'UTF8-3-2'(), 'UTF8-3-3'(), 'UTF8-3-4'()]).
+    oneof(['UTF8-3-1'(), 'UTF8-3-2'(), 'UTF8-3-3'(), 'UTF8-3-4'()]).
 
 'UTF8-3-1'() ->
     ?LET({HEX, TL}, {choose(16#A0, 16#BF), 'UTF8-tail'()}, <<16#E0, HEX, TL/binary>>).
@@ -177,7 +173,7 @@ local_part() ->
 % UTF8-4          =   %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
 %                     %xF4 %x80-8F 2( UTF8-tail )
 'UTF8-4'() ->
-    '__alt'(['UTF8-4-1'(), 'UTF8-4-2'(), 'UTF8-4-3'()]).
+    oneof(['UTF8-4-1'(), 'UTF8-4-2'(), 'UTF8-4-3'()]).
 
 'UTF8-4-1'() ->
     ?LET({HEX, TL}, {choose(16#90, 16#BF), '__repeat'('UTF8-tail'(), 2)}, <<16#F0, HEX, TL/binary>>).
@@ -193,26 +189,6 @@ local_part() ->
     ?LET(TL, choose(16#80, 16#BF), <<TL>>).
 
 %%% IP Address Literals %%%
-
-% General-address-literal  =   Standardized-tag ":" 1*dcontent
-'General-address-literal'() ->
-    ?LET(
-        {STag, DContent},
-        {'Standardized-tag'(), '__repeat'('dcontent'(), 1, infinity)},
-        <<STag/binary, $:, DContent/binary>>
-    ).
-
-% Standardized-tag         =   ldh-str
-'Standardized-tag'() ->
-    'ldh-str'().
-
-% dcontent                 =   %d33-90 / ; Printable US-ASCII
-%                              %d94-126  ; excl. "[", "\", "]"
-'dcontent'() ->
-    '__alt'([
-        choose(33, 90),
-        choose(94, 126)
-    ]).
 
 % IPv4-address-literal     =   dec-octet 3("." dec-octet)
 'IPv4-address-literal'() ->
@@ -251,9 +227,9 @@ local_part() ->
 
 'IPv6-addr'(Case) ->
     ?LET(
-        {Beginning, Separator, Middle, End},
-        {'IPv6-addr-beginning'(Case), 'IPv6-addr-separator'(Case), 'IPv6-addr-middle'(Case), 'IPv6-addr-end'(Case)},
-        <<Beginning/binary, Separator/binary, Middle/binary, End/binary>>
+        Frags,
+        ['IPv6-addr-beginning'(Case), 'IPv6-addr-separator'(Case), 'IPv6-addr-middle'(Case), 'IPv6-addr-end'(Case)],
+        iolist_to_binary(Frags)
     ).
 
 'IPv6-addr-beginning'(Case) when Case >= 2, Case =< 8 ->
@@ -293,7 +269,7 @@ local_part() ->
 
 % LS32                     =   ( H16 ":" H16 ) / IPv4-address-literal
 'LS32'() ->
-    '__alt'([
+    oneof([
         ?LET({First, Second}, {'H16'(), 'H16'()}, <<First/binary, $:, Second/binary>>),
         'IPv4-address-literal'()
     ]).
@@ -302,7 +278,7 @@ local_part() ->
 
 % ALPHA           =   %x41-5A / %x61-7A   ; A-Z / a-z
 'ALPHA'() ->
-    '__alt'([choose(16#41, 16#5A), choose(16#61, 16#7A)]).
+    oneof([choose(16#41, 16#5A), choose(16#61, 16#7A)]).
 
 % DIGIT           =   %x30-39             ; 0-9
 'DIGIT'() ->
@@ -314,7 +290,7 @@ local_part() ->
 
 % HEXDIG          =   DIGIT / "A" / "B" / "C" / "D" / "E" / "F" ; 0-9 A-F
 'HEXDIG'() ->
-    '__alt'([
+    oneof([
         'DIGIT'(),
         choose($A, $F)
     ]).
@@ -322,12 +298,13 @@ local_part() ->
 %%%%%%%%%%%%%
 %%% UTILS %%%
 %%%%%%%%%%%%%
-
 '__repeat'(Generator, Times) ->
     '__repeat'(Generator, Times, Times).
 
 '__repeat'(Generator, Min, infinity) ->
-    '__repeat'(Generator, Min, ?INFINITY);
+    ?SIZED(S,
+        '__repeat'(Generator, Min, max(Min, S))
+    );
 '__repeat'(Generator, Size, Size) ->
     ?LET(Vector, vector(Size, Generator), list_to_binary(Vector));
 '__repeat'(Generator, Min, Max) ->
@@ -337,7 +314,3 @@ local_part() ->
 
 '__opt'(Generator) ->
     '__repeat'(Generator, 0, 1).
-
-'__alt'(Alternatives) ->
-    Frequencies = [{1, Alt} || Alt <- Alternatives],
-    frequency(Frequencies).

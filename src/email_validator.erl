@@ -40,7 +40,7 @@ parse(Address) when is_list(Address) ->
 parse(Address) when is_binary(Address) ->
     parse_addr(Address);
 parse(Address) ->
-    {error, {not_an_address, Address}}.
+    erlang:error(badarg, [Address]).
 
 %%
 

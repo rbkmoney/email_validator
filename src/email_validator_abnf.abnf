@@ -5,6 +5,7 @@
 ;;;   https://tools.ietf.org/rfc/rfc6531.txt
 ;;; + Added stricter IP address grammar
 ;;;   https://tools.ietf.org/html/rfc3986#appendix-A
+;;; + No longer accept General-address-literal
 
 ;; Address specification
 
@@ -35,7 +36,7 @@ hyphen-let-dig  =   *("-") let-dig
 
 ldh-str         =   1*(hyphen-let-dig / let-dig)
 
-address-literal =   IPv4-address-literal / IPv6-address-literal / General-address-literal
+address-literal =   "[" IPv4-address-literal "]" / "[" IPv6-address-literal "]"
 
 ; Local part specification
 
@@ -109,27 +110,7 @@ UTF8-tail       =   %x80-BF
 ; (https://tools.ietf.org/html/rfc3986#appendix-A).
 ; They are much stricter and friendlier for ABNFC parser generator.
 
-; Original RFC5321 definitions of
-; ```
-;   General-address-literal  =   Standardized-tag ":" 1*dcontent
-;   IPv6-address-literal     =   "IPv6:" IPv6-addr
-; ```
-; Changed for better compatability with ABNFC parser generator.
-
-; Original RFC3986 definition of
-; ```
-; IPv4-address-literal     =   dec-octet 3("." dec-octet)
-; ```
-; Changed for better compatability with ABNFC parser generator.
-
-General-address-literal  =   "[" Standardized-tag ":" 1*dcontent "]"
-
-Standardized-tag         =   ldh-str
-
-dcontent                 =   %d33-90 / ; Printable US-ASCII
-                             %d94-126  ; excl. "[", "\", "]"
-
-IPv4-address-literal     =   "[" dec-octet 3("." dec-octet) "]"
+IPv4-address-literal     =   dec-octet 3("." dec-octet)
 
 dec-octet                =   "25" %x30-35          ; 250-255
                            / "2" %x30-34 DIGIT     ; 200-249
@@ -137,7 +118,7 @@ dec-octet                =   "25" %x30-35          ; 250-255
                            / %x31-39 DIGIT         ; 10-99
                            / DIGIT                 ; 0-9
 
-IPv6-address-literal     =   "[IPv6:" IPv6-addr "]"
+IPv6-address-literal     =   "IPv6:" IPv6-addr
 
 IPv6-addr                =                               6( H16 ":" ) LS32
                            /                        "::" 5( H16 ":" ) LS32

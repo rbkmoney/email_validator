@@ -35,4 +35,4 @@ jobs:
           run: rebar3 do eunit, proper
 
         - name: Clean up
-          run: rm -rf ~/.cache3/rebar3/hex
+          run: find ~/.cache/rebar3/* ! -name 'rebar3_${{ env.ERLANG_VERSION }}_plt' ! -name '.' -exec rm -rf {} +
