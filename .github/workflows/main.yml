@@ -1,0 +1,35 @@
+name: Erlang CI
+
+on: [push]
+
+env:
+    ERLANG_VERSION: 21.3.8.12
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        container: erlang:21.3.8.12
+
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Restore rebar3 chache
+          uses: actions/cache@v1
+          with:
+            path: ~/.cache/rebar3
+            key: rebar3-${{ env.ERLANG_VERSION }}
+
+        - name: Lint
+          run: rebar3 lint
+
+        - name: Compile
+          run: rebar3 compile
+
+        - name: Xref
+          run: rebar3 xref
+
+        - name: Dialyze
+          run: rebar3 dialyzer
+
+        - name: Run tests
+          run: rebar3 do eunit, proper
