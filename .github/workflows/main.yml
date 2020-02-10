@@ -13,11 +13,11 @@ jobs:
         steps:
         - uses: actions/checkout@v2
 
-        - name: Restore dialyzer cache
+        - name: Restore rebar3 chache
           uses: actions/cache@v1
           with:
             path: ~/.cache/rebar3
-            key: dialyzer-${{ env.ERLANG_VERSION }}
+            key: rebar3-${{ env.ERLANG_VERSION }}
 
         - name: Lint
           run: rebar3 lint
@@ -33,6 +33,3 @@ jobs:
 
         - name: Run tests
           run: rebar3 do eunit, proper
-
-        - name: Clean up
-          run: find ~/.cache/rebar3/* ! -name 'rebar3_${{ env.ERLANG_VERSION }}_plt' ! -name '.' -exec rm -rf {} +
