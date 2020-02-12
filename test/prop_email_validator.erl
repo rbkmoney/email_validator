@@ -46,12 +46,18 @@ domain() ->
         <<Subdomain/binary, DotSubdomainList/binary>>
     ).
 
-% sub-domain      =   let-dig [ldh-str]
-'sub-domain'() ->
-    ?LET({LetDig, LdhStr}, {'let-dig'(), '__opt'('ldh-str'())}, <<LetDig, LdhStr/binary>>).
-
 'dot-sub-domain'() ->
     ?LET(Subdomain, 'sub-domain'(), <<$., Subdomain/binary>>).
+
+% sub-domain      =   let-dig [ldh-str] / U-Label
+'sub-domain'() ->
+    oneof(['ascii-subdomain'(), 'U-Label'()]).
+
+'ascii-subdomain'() ->
+    ?LET({LetDig, LdhStr}, {'let-dig'(), '__opt'('ldh-str'())}, <<LetDig, LdhStr/binary>>).
+
+'U-Label'() ->
+    '__repeat'('UTF8-non-ascii'(), 1, infinity).
 
 %%% NOTE: let-dig and ldh-str using original RFC5321 specification
 
