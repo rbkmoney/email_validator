@@ -35,7 +35,10 @@ manual_cases() -> [
     {"ip@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]", ok},
     % UTF-8
     {<<"öö@example.com"/utf8>>, ok},
-    {<<"тест@example.com"/utf8>>, ok},
+    {<<"испытание@пример.рф"/utf8>>, ok},
+    {<<"我買@屋企.香港"/utf8>>, ok},
+    {<<"संपर्क@डाटामेल.भारत"/utf8>>, ok},
+    {<<"संपर्क@डाटामेल.भारत"/utf8>>, ok},
     %% Failures
     {"not even close", fail},
     {"@closerbutnotquite", fail},
@@ -78,7 +81,8 @@ manual_cases() -> [
     {"ip@[GENERAL:[test]]", fail},
     % UTF-8
     {<<"те\\ ст@example.com"/utf8>>, fail},
-    {<<"т ес\"т@example.com"/utf8>>, fail}
+    {<<"т ес\"т@example.com"/utf8>>, fail},
+    {<<"испытание@пример.рфascii"/utf8>>, fail}
 ].
 
 email_validator_test_() ->

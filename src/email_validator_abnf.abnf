@@ -19,7 +19,9 @@ domain          =   domain-name / address-literal
 
 domain-name     =   sub-domain *("." sub-domain)
 
-sub-domain      =   let-dig [ldh-str]
+sub-domain      =   let-dig [ldh-str] / U-Label
+
+U-Label         =   1*UTF8-non-ascii
 
 ; Original RFC5321 definition of
 ; ```
