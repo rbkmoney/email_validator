@@ -24,6 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Restore rebar3 chache
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/rebar3
+          key: rebar3-${{ matrix.otp_version }}
+
       - name: Lint
         run: rebar3 lint
 
@@ -45,6 +51,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Restore rebar3 chache
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/rebar3
+          key: rebar3-${{ matrix.otp_version }}
+
       - name: Install Erlang and rebar3
         run: brew install erlang rebar3
 
