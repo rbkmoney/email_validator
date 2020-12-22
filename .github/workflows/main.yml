@@ -1,4 +1,4 @@
-name: Test
+name: Erlang CI
 
 on:
   pull_request:
