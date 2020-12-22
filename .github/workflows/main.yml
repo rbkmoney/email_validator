@@ -29,20 +29,20 @@ jobs:
           path: ~/.cache/rebar3
           key: rebar3-${{ env.ERLANG_VERSION }}
 
-        - name: Lint
-          run: rebar3 lint
+      - name: Lint
+        run: rebar3 lint
 
-        - name: Compile
-          run: rebar3 compile
+      - name: Compile
+        run: rebar3 compile
 
-        - name: Xref
-          run: rebar3 xref
+      - name: Xref
+        run: rebar3 xref
 
-        - name: Dialyze
-          run: rebar3 dialyzer
+      - name: Dialyze
+        run: rebar3 dialyzer
 
-        - name: Run tests
-          run: rebar3 do eunit, proper
+      - name: Run tests
+        run: rebar3 do eunit, proper
 
   macos:
     name: Test on MacOS
@@ -58,17 +58,17 @@ jobs:
           path: ~/.cache/rebar3
           key: rebar3-${{ env.ERLANG_VERSION }}
 
-        - name: Lint
-          run: rebar3 lint
+      - name: Lint
+        run: rebar3 lint
 
-        - name: Compile
-          run: rebar3 compile
+      - name: Compile
+        run: rebar3 compile
 
-        - name: Xref
-          run: rebar3 xref
+      - name: Xref
+        run: rebar3 xref
 
-        - name: Dialyze
-          run: rebar3 dialyzer
+      - name: Dialyze
+        run: rebar3 dialyzer
 
-        - name: Run tests
-          run: rebar3 do eunit, proper
+      - name: Run tests
+        run: rebar3 do eunit, proper
