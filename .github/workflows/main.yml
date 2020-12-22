@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Restore rebar3 chache
+      - name: Restore rebar3 cache
         uses: actions/cache@v1
         with:
           path: ~/.cache/rebar3
@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Restore rebar3 chache
+      - name: Restore rebar3 cache
         uses: actions/cache@v1
         with:
           path: ~/.cache/rebar3
