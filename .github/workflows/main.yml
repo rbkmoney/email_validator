@@ -24,8 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Lint
-#        run: rebar3 lint
+      - name: Lint
+        run: rebar3 lint
 
       - name: Compile
         run: rebar3 compile
@@ -48,8 +48,8 @@ jobs:
       - name: Install Erlang and rebar3
         run: brew install erlang rebar3
 
-#      - name: Lint
-#        run: rebar3 lint
+      - name: Lint
+        run: rebar3 lint
 
       - name: Compile
         run: rebar3 compile
