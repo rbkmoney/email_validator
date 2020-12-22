@@ -1,6 +1,6 @@
 {application, email_validator, [
-    {description, "A library to validate email address format based on RFC5321."},
-    {vsn, "0.1.0"},
+    {description, "A library to validate email address format."},
+    {vsn, "1.0.0"},
     {applications, [
         kernel,
         stdlib
