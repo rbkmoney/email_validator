@@ -1,35 +1,74 @@
-name: Erlang CI
+name: Test
 
-on: [push]
-
-env:
-    ERLANG_VERSION: 21.3.8.12
+on:
+  pull_request:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        container: erlang:21.3.8.12
+  linux:
+    name: Test on OTP ${{ matrix.otp_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
-        steps:
-        - uses: actions/checkout@v2
+    strategy:
+      matrix:
+        otp_version: [21, 22, 23]
+        os: [ubuntu-latest]
 
-        - name: Restore rebar3 chache
-          uses: actions/cache@v1
-          with:
-            path: ~/.cache/rebar3
-            key: rebar3-${{ env.ERLANG_VERSION }}
+    container:
+      image: erlang:${{ matrix.otp_version }}
 
-        - name: Lint
-          run: rebar3 lint
+    steps:
+      - uses: actions/checkout@v2
+      - name: Restore rebar3 chache
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/rebar3
+          key: rebar3-${{ env.ERLANG_VERSION }}
 
-        - name: Compile
-          run: rebar3 compile
+      - name: Lint
+        run: rebar3 lint
 
-        - name: Xref
-          run: rebar3 xref
+      - name: Compile
+        run: rebar3 compile
 
-        - name: Dialyze
-          run: rebar3 dialyzer
+      - name: Xref
+        run: rebar3 xref
 
-        - name: Run tests
-          run: rebar3 do eunit, proper
+      - name: Dialyze
+        run: rebar3 dialyzer
+
+      - name: Run tests
+        run: rebar3 do eunit, proper
+
+  macos:
+    name: Test on MacOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Erlang and rebar3
+        run: brew install erlang rebar3
+      - name: Restore rebar3 chache
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/rebar3
+          key: rebar3-${{ env.ERLANG_VERSION }}
+
+      - name: Lint
+        run: rebar3 lint
+
+      - name: Compile
+        run: rebar3 compile
+
+      - name: Xref
+        run: rebar3 xref
+
+      - name: Dialyze
+        run: rebar3 dialyzer
+
+      - name: Run tests
+        run: rebar3 do eunit, proper
