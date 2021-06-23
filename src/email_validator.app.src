@@ -1,6 +1,6 @@
 {application, email_validator, [
     {description, "A library to validate email address format."},
-    {vsn, "1.0.0"},
+    {vsn, "1.1.0"},
     {applications, [
         kernel,
         stdlib
